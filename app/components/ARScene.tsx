@@ -95,7 +95,29 @@ const ARScene: React.FC = () => {
     gamma: 0,
   });
   const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
+  const [visibleObjects, setVisibleObjects] = useState<Set<string>>(
+    new Set([
+      "obj1",
+      "obj2",
+      "obj3",
+      "obj4",
+      "obj5",
+      "obj6",
+      "obj7",
+      "obj8",
+      "obj9",
+      "obj10",
+    ])
+  );
   const { camera } = useThree();
+
+  const handleObjectClick = (objectId: string) => {
+    setVisibleObjects((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(objectId);
+      return newSet;
+    });
+  };
 
   // Handle device orientation permissions and setup
   useEffect(() => {
@@ -199,94 +221,176 @@ const ARScene: React.FC = () => {
   return (
     <>
       {/* Objects placed relative to the user */}
+      {visibleObjects.has("obj1") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={1}
+          direction={0}
+          color="red"
+          label="1m North"
+          size={0.2}
+          objectId="obj1"
+          onObjectClick={handleObjectClick}
+        />
+      )}
 
-      {/* 2 meters in front */}
-      <RelativeObject
-        userLocation={userLocation}
-        meters={2}
-        direction={0} // 0 degrees = North
-        color="red"
-        label="2m North"
-      />
+      {visibleObjects.has("obj2") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={8}
+          direction={45}
+          color="blue"
+          label="8m NE"
+          size={0.15}
+          objectId="obj2"
+          onObjectClick={handleObjectClick}
+        />
+      )}
 
-      {/* 3 meters to the right (East) */}
-      <RelativeObject
-        userLocation={userLocation}
-        meters={3}
-        direction={90} // 90 degrees = East
-        color="blue"
-        label="3m East"
-      />
+      {visibleObjects.has("obj3") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={3}
+          direction={90}
+          color="green"
+          label="3m East"
+          size={0.25}
+          objectId="obj3"
+          onObjectClick={handleObjectClick}
+        />
+      )}
 
-      {/* 2.5 meters to the left (West) */}
-      <RelativeObject
-        userLocation={userLocation}
-        meters={2.5}
-        direction={270} // 270 degrees = West
-        color="green"
-        label="2.5m West"
-      />
+      {visibleObjects.has("obj4") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={6}
+          direction={135}
+          color="yellow"
+          label="6m SE"
+          size={0.18}
+          objectId="obj4"
+          onObjectClick={handleObjectClick}
+        />
+      )}
 
-      {/* 4 meters behind (South) */}
-      <RelativeObject
-        userLocation={userLocation}
-        meters={4}
-        direction={180} // 180 degrees = South
-        color="yellow"
-        label="4m South"
-      />
+      {visibleObjects.has("obj5") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={4}
+          direction={180}
+          color="purple"
+          label="4m South"
+          size={0.22}
+          objectId="obj5"
+          onObjectClick={handleObjectClick}
+        />
+      )}
 
-      {/* 3 meters North-East */}
-      <RelativeObject
-        userLocation={userLocation}
-        meters={3}
-        direction={45} // 45 degrees = North-East
-        color="purple"
-        label="3m North-East"
-      />
+      {visibleObjects.has("obj6") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={10}
+          direction={225}
+          color="orange"
+          label="10m SW"
+          size={0.12}
+          objectId="obj6"
+          onObjectClick={handleObjectClick}
+        />
+      )}
+
+      {visibleObjects.has("obj7") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={5}
+          direction={270}
+          color="cyan"
+          label="5m West"
+          size={0.2}
+          objectId="obj7"
+          onObjectClick={handleObjectClick}
+        />
+      )}
+
+      {visibleObjects.has("obj8") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={7}
+          direction={315}
+          color="magenta"
+          label="7m NW"
+          size={0.16}
+          objectId="obj8"
+          onObjectClick={handleObjectClick}
+        />
+      )}
+
+      {visibleObjects.has("obj9") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={12}
+          direction={30}
+          color="lime"
+          label="12m NNE"
+          size={0.1}
+          objectId="obj9"
+          onObjectClick={handleObjectClick}
+        />
+      )}
+
+      {visibleObjects.has("obj10") && (
+        <RelativeObject
+          userLocation={userLocation}
+          meters={2}
+          direction={150}
+          color="pink"
+          label="2m SSE"
+          size={0.3}
+          objectId="obj10"
+          onObjectClick={handleObjectClick}
+        />
+      )}
     </>
   );
 };
 
-// Props for the relative object component
+// Update the props interface
 interface RelativeObjectProps {
   userLocation: { lat: number; lng: number };
   meters: number;
-  direction: number; // in degrees, 0 = North, 90 = East, etc.
+  direction: number;
   color: string;
   label: string;
+  size: number;
+  objectId: string;
+  onObjectClick: (objectId: string) => void;
 }
 
-// Component for placing objects at relative positions
+// Update the RelativeObject component
 const RelativeObject: React.FC<RelativeObjectProps> = ({
   meters,
   direction,
   color,
   label,
+  size,
+  objectId,
+  onObjectClick,
 }) => {
-  // Convert direction to radians
   const directionRad = (direction * Math.PI) / 180;
-
-  // Calculate 3D position
-  // Note: We're keeping the y-coordinate at 0 (eye level)
-  // Scale factor determines how distance in meters maps to 3D space
-  const scaleFactor = 0.5; // adjust for your scene
-
-  // Calculate relative position in 3D space
-  // North is negative Z, East is positive X
+  const scaleFactor = 0.5;
   const x = Math.sin(directionRad) * meters * scaleFactor;
   const z = -Math.cos(directionRad) * meters * scaleFactor;
 
   return (
     <group position={[x, 0, z]}>
-      <mesh>
-        <boxGeometry args={[0.5, 0.5, 0.5]} />
+      <mesh onClick={() => onObjectClick(objectId)}>
+        <boxGeometry args={[size, size, size]} />
         <meshStandardMaterial color={color} />
       </mesh>
 
       <Text
-        position={[0, 0.5, 0]}
-        fontSize={0.2}
+        position={[0, size + 0.1, 0]}
+        fontSize={0.15}
         color="white"
         anchorX="center"
         anchorY="bottom"
